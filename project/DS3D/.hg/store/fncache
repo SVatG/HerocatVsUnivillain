@@ -1,0 +1,14 @@
+data/Utils.c.i
+data/Hardware.h.i
+data/.hgsubstate.i
+data/Matrix.c.i
+data/DS3D.c.i
+data/DS3D.h.i
+data/Matrix.h.i
+data/.hgsub.i
+data/ds3d.c.i
+data/.hgignore.i
+data/Utils.h.i
+data/Vector.c.i
+data/Vector.h.i
+data/ds3d.h.i
