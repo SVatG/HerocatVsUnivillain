@@ -2,12 +2,12 @@
 NAME = rainbows
 
 # Object files, for the ARM9 binary and the ARM7 binary
-OBJS = Main.o Truchet.o Radial.o Tunnel.o Pens.o ARM.o Drawing.o nitrofs.o \
-       effect5.o effect6.o BoxBlock.o Loader.o VoxelBlock.o RainbowTable.o \
+OBJS = Main.o nitrofs.o \
+       BoxBlock.o Loader.o VoxelBlock.o RainbowTable.o \
        DS3D/DS3D.o DS3D/Utils.o DS3D/Vector/VectorFixed.o \
        DS3D/Vector/MatrixFixed.o DS3D/Vector/QuaternionFixed.o \
-			 effect7.o effect1.o effect2.o effect4.o effect0.o
-
+       lowerscreen_display.o
+       
 OBJS7 = Main.arm7.o
 
 #DEVKITPRO=../devkit/devkitPro
