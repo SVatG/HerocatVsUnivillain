@@ -6,7 +6,7 @@ OBJS = Main.o nitrofs.o \
        BoxBlock.o Loader.o VoxelBlock.o RainbowTable.o \
        DS3D/DS3D.o DS3D/Utils.o DS3D/Vector/VectorFixed.o \
        DS3D/Vector/MatrixFixed.o DS3D/Vector/QuaternionFixed.o \
-       lowerscreen_display.o
+       lowerscreen_display.o perlin.o DS3D/Vector/Vector.o
        
 OBJS7 = Main.arm7.o
 

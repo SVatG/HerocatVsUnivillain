@@ -4,12 +4,11 @@
 
 #include "DS3D/Utils.h"
 #include "DS3D/DS3D.h"
-#include "VoxelBlock.h"
+#include "DS3D/Vector/Vector.h"
 #include "Hardware.h"
 #include "Loader.h"
 #include "RainbowTable.h"
-
-VoxelBlock block2;
+#include "perlin.h"
 
 void lowerscreen_init() {
 	DISPCNT_A=DISPCNT_MODE_5|DISPCNT_3D|DISPCNT_BG0_ON|DISPCNT_BG3_ON|DISPCNT_ON;
@@ -74,19 +73,28 @@ void voxelSpiral(int t) {
 	DISP3DCNT|=DS_OUTLINE;
 	DSPolygonAttributes(DS_POLY_MODE_MODULATION|DS_POLY_CULL_NONE|DS_POLY_LIGHT0|DS_POLY_ALPHA(31));
 
-	DSRotateYf(t);
+	//DSRotateYf(t);
 	//DSRotateXf(t);
 	
 	DSBegin(DS_QUADS);
 	for( int x = -10; x <= 10; x++ ) {
 		for( int y = -10; y <= 10; y++ ) {
-			int yoff = -3;
-			DSMaterialDiffuseAndAmbient(rainbowTable[(y+10)%255]|0x8000,0);
-			DSNormal3f(0,-0.99,0);
-			DSVertex3v16( x,   yoff, y   );
-			DSVertex3v16( x,   yoff, y+1 );
-			DSVertex3v16( x+1, yoff, y+1 );
-			DSVertex3v16( x+1, yoff, y   );
+			int ya = (noise_at((x+10)/40.0,(y+10)/40.0,t*0.01)*5.0)-4.0;
+			int yb = (noise_at((x+10)/40.0,(y+1+10)/40.0,t*0.01)*5.0)-4.0;
+			int yc = (noise_at((x+1+10)/40.0,(y+1+10)/40.0,t*0.01)*5.0)-4.0;
+			int yd = (noise_at((x+1+10)/40.0,(y+10)/40.0,t*0.01)*5.0)-4.0;
+			
+			DSMaterialDiffuseAndAmbient(rainbowTable[x+y+20]|0x8000,0);
+			vec3_t a = vec3(0, ya-yb, -1);
+			vec3_t b = vec3(-1, ya-yc, -1);
+			vec3_t n = vec3cross(a,b);
+			n = vec3norm(n);
+			DSNormal3f(-n.x,-n.y,-n.z);
+			
+			DSVertex3v16( x,   ya, y   );
+			DSVertex3v16( x,   yb, y+1 );
+			DSVertex3v16( x+1, yc, y+1 );
+			DSVertex3v16( x+1, yd, y   );
 		}
 	}
 	DSEnd();
