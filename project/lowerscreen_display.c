@@ -16,20 +16,18 @@
 int noise[RESX+1][RESY+1];
 
 void lowerscreen_init() {
-
-	VRAMCNT_A = VRAMCNT_A_BG_VRAM_A;
+	
+	DISPCNT_B = DISPCNT_MODE_5 | DISPCNT_BG2_ON | DISPCNT_ON;
 	VRAMCNT_C = VRAMCNT_C_BG_VRAM_B;
-	
-	DISPCNT_B=DISPCNT_MODE_5|DISPCNT_BG3_ON|DISPCNT_ON;
-	
-	BG3CNT_B = BGxCNT_EXTENDED_BITMAP_8 | BGxCNT_BITMAP_SIZE_256x256 | BGxCNT_OVERFLOW_TRANSPARENT | BGxCNT_BITMAP_BASE_0K;
-	BG3CNT_B = (BG3CNT_B&~BGxCNT_PRIORITY_MASK)|BGxCNT_PRIORITY_0;
-	BG3PA_B = (1 << 8);
-	BG3PB_B = 0;
-	BG3PC_B = 0;
-	BG3PD_B = (1 << 8);
-	BG3X_B = 0;
-	BG3Y_B = 0;
+
+	BG2CNT_B = BGxCNT_EXTENDED_BITMAP_8 | BGxCNT_BITMAP_SIZE_256x256 | BGxCNT_OVERFLOW_TRANSPARENT | BGxCNT_BITMAP_BASE_0K;
+	BG2CNT_B = (BG2CNT_B&~BGxCNT_PRIORITY_MASK)|BGxCNT_PRIORITY_0;
+	BG2PA_B = (1 << 8);
+	BG2PB_B = 0;
+	BG2PC_B = 0;
+	BG2PD_B = (1 << 8);
+	BG2X_B = 0;
+	BG2Y_B = 0;
 	
 	for( int x = -RESX/2; x <= RESX/2; x++ ) {
 		for( int y = -RESY/2; y <= RESY/2; y++ ) {
@@ -38,6 +36,7 @@ void lowerscreen_init() {
 	}
 	
 	DISPCNT_A=DISPCNT_MODE_5|DISPCNT_3D|DISPCNT_BG0_ON|DISPCNT_BG3_ON|DISPCNT_ON;
+	VRAMCNT_B = VRAMCNT_B_BG_VRAM_A;
 
 	DSInit3D();
 	DSViewport(0,0,255,191);
@@ -58,10 +57,10 @@ void lowerscreen_init() {
 	BG3X_A = 0;
 	BG3Y_A = 0;
 
-	load8bVRAMIndirect( "nitro:/gfx/starfieldb.img.bin", VRAM_A_OFFS_0K,256*192*2);
+	load8bVRAMIndirect( "nitro:/gfx/starfieldb.img.bin", VRAM_A_OFFS_0K,256*192);
 	loadVRAMIndirect( "nitro:/gfx/starfieldb.pal.bin", PALRAM_A,256*2);
 
-	load8bVRAMIndirect( "nitro:/gfx/starfielda.img.bin", VRAM_B_OFFS_0K,192*192*2);
+	load8bVRAMIndirect( "nitro:/gfx/starfielda.img.bin", VRAM_B_OFFS_0K,256*192);
 	loadVRAMIndirect( "nitro:/gfx/starfielda.pal.bin", PALRAM_B,256*2);
 }
 
