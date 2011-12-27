@@ -18,6 +18,8 @@
 #include <maxmod9.h>
 #include "music.h"
 
+#include "kitten.h"
+
 volatile uint32_t t;
 static void vblank();
 
@@ -76,10 +78,16 @@ int main()
 	mmStart( MOD_RAINBOWS_CLN, MM_PLAY_ONCE );
 
 	POWCNT1 = POWCNT1_ALL;
-
+	//POWCNT1 = POWCNT1_ALL_SWAP;
+	
+	Kitten Cat;
+	KittenInit(&Cat);
+	
 	lowerscreen_init();
+	
 	while(++t) {
 		lowerscreen_update(t);
+		KittenUpdate(&Cat);
  		swiWaitForVBlank();		
 	}
 	
