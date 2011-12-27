@@ -77,10 +77,10 @@ int main()
 
 	POWCNT1 = POWCNT1_ALL;
 
-	lowerscreen_init();
+	menu_init();
 	while(++t) {
-		lowerscreen_update(t);
- 		swiWaitForVBlank();		
+		menu_update(t);
+ 		swiWaitForVBlank();	
 	}
 	
 	for(;;);
