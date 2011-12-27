@@ -17,6 +17,20 @@ int noise[RESX+1][RESY+1];
 
 void lowerscreen_init() {
 
+	VRAMCNT_A = VRAMCNT_A_BG_VRAM_A;
+	VRAMCNT_C = VRAMCNT_C_BG_VRAM_B;
+	
+	DISPCNT_B=DISPCNT_MODE_5|DISPCNT_BG3_ON|DISPCNT_ON;
+	
+	BG3CNT_B = BGxCNT_EXTENDED_BITMAP_8 | BGxCNT_BITMAP_SIZE_256x256 | BGxCNT_OVERFLOW_TRANSPARENT | BGxCNT_BITMAP_BASE_0K;
+	BG3CNT_B = (BG3CNT_B&~BGxCNT_PRIORITY_MASK)|BGxCNT_PRIORITY_0;
+	BG3PA_B = (1 << 8);
+	BG3PB_B = 0;
+	BG3PC_B = 0;
+	BG3PD_B = (1 << 8);
+	BG3X_B = 0;
+	BG3Y_B = 0;
+	
 	for( int x = -RESX/2; x <= RESX/2; x++ ) {
 		for( int y = -RESY/2; y <= RESY/2; y++ ) {
 			noise[x+RESX/2][y+RESY/2] = (noise_at((x+RESX/2)/40.0,-(y-0.1*20.0-RESY/2)/40.0,1*0.01)*5.0);
@@ -24,21 +38,6 @@ void lowerscreen_init() {
 	}
 	
 	DISPCNT_A=DISPCNT_MODE_5|DISPCNT_3D|DISPCNT_BG0_ON|DISPCNT_BG3_ON|DISPCNT_ON;
-		
-	VRAMCNT_A = VRAMCNT_A_LCDC;
-	
-	int dx = icos(128)/26.5;
-	int dy = isin(128)/26.5;
-	BG2PA_B = dx;
-	BG2PB_B = dy;
-	BG2PC_B = -dy;
-	BG2PD_B = dx;
-	BG2X_B = 4000;
-	BG2Y_B = 10000;
-
-	// Set up voxelcubes
-	VRAMCNT_D=VRAMCNT_D_LCDC;
-	VRAMCNT_F=VRAMCNT_F_LCDC;
 
 	DSInit3D();
 	DSViewport(0,0,255,191);
@@ -46,15 +45,9 @@ void lowerscreen_init() {
 	DSSetControl(DS_ANTIALIAS);
 	DSClearParams(26,26,26,0,63);
 
-	DSSetPaletteOffset(0,DS_TEX_FORMAT_PAL4);
-
 	DSMatrixMode(DS_PROJECTION);
 	DSLoadIdentity();
 	DSPerspectivef(100,256.0/192.0,1,1024);
-
-	// Background
-	VRAMCNT_B = VRAMCNT_B_BG_VRAM_A_OFFS_0K;
-	VRAMCNT_C = VRAMCNT_C_BG_VRAM_A_OFFS_128K;
 
 	BG3CNT_A = BGxCNT_EXTENDED_BITMAP_8 | BGxCNT_BITMAP_SIZE_256x256 | BGxCNT_OVERFLOW_TRANSPARENT | BGxCNT_BITMAP_BASE_0K;
 	BG3CNT_A = (BG3CNT_A&~BGxCNT_PRIORITY_MASK)|BGxCNT_PRIORITY_0;
@@ -65,16 +58,22 @@ void lowerscreen_init() {
 	BG3X_A = 0;
 	BG3Y_A = 0;
 
-	load8bVRAMIndirect( "nitro:/gfx/aocubes.img.bin", VRAM_A_OFFS_0K,256*192*2);
-	loadVRAMIndirect( "nitro:/gfx/aocubes.pal.bin", PALRAM_A,256*2);
+	load8bVRAMIndirect( "nitro:/gfx/starfieldb.img.bin", VRAM_A_OFFS_0K,256*192*2);
+	loadVRAMIndirect( "nitro:/gfx/starfieldb.pal.bin", PALRAM_A,256*2);
+
+	load8bVRAMIndirect( "nitro:/gfx/starfielda.img.bin", VRAM_B_OFFS_0K,192*192*2);
+	loadVRAMIndirect( "nitro:/gfx/starfielda.pal.bin", PALRAM_B,256*2);
 }
 
 int yp = 0;
-void voxelSpiral(int t) {
+void gameGfx(int t) {
 	static uint8_t ri = 0;
 	DSMatrixMode(DS_POSITION_AND_VECTOR);
 	DSLoadIdentity();
-	DSLight3f(0,0xffff,0,0.99,0);
+	vec3_t lightd = vec3(10,10,0);
+	lightd = vec3norm(lightd);
+	
+	DSLight3f(0,0xffff,lightd.x,lightd.y,lightd.z);
 	
 	// Move things
 	DSTranslatef32(DSf32(0),DSf32(0),-DSf32(5));
@@ -83,13 +82,10 @@ void voxelSpiral(int t) {
 	int scale = 1024;
 	//DSScalef32(DSf32(scale),DSf32(scale),DSf32(scale));
 
-	DISP3DCNT|=DS_OUTLINE;
 	DSPolygonAttributes(DS_POLY_MODE_MODULATION|DS_POLY_CULL_NONE|DS_POLY_LIGHT0|DS_POLY_ALPHA(31));
 
 	//DSRotateYf(t);
 	//DSRotateXf(0);
-
-	DSMaterialDiffuseAndAmbient(MakeRGB15(10,5,0)|0x8000,0);
 
 	int movf = (t<<10)%(1<<10);
 	if( movf == 0 ) {
@@ -114,17 +110,29 @@ void voxelSpiral(int t) {
 			int nb = noise[x+RESX/2][(y+1+RESY/2+yp)%RESY];
 			int nc = noise[x+1+RESX/2][(y+1+RESY/2+yp)%RESY];
 			int nd = noise[x+1+RESX/2][(y+RESY/2+yp)%RESY];
-			int ya = (na<<10)-ys+shift-(abs(x)<<8);
-			int yb = (nb<<10)-ys1+shift-(abs(x)<<8);
-			int yc = (nc<<10)-ys1+shift-(abs(x+1)<<8);
-			int yd = (nd<<10)-ys+shift-(abs(x+1)<<8);
-
+			int ya = (na<<10)+shift;
+			int yb = (nb<<10)+shift;
+			int yc = (nc<<10)+shift;
+			int yd = (nd<<10)+shift;
+			
 			vec3_t a = vec3((0<<10), ya-yb, -(1<<10));
 			vec3_t b = vec3(-(1<<10), ya-yc, -(1<<10));
 			vec3_t n = vec3cross(a,b);
 			n = vec3norm(n);
-			DSNormal3f(-n.x,-n.y,-n.z);
-			
+
+			ya -= (abs(x)<<8)+ys;
+			yb -= (abs(x)<<8)+ys1;
+			yc -= (abs(x+1)<<8)+ys1;
+			yd -= (abs(x+1)<<8)+ys;
+
+			if(na > -2 || nb > -2 || nc > -2 || nd > -2) {
+				DSMaterialDiffuseAndAmbient(MakeRGB15(6,3,0)|0x8000,0);
+				DSNormal3f(-n.x,-n.y,-n.z);
+			}
+			else {
+				DSColor3b(18,0,0);
+				//DSMaterialDiffuseAndAmbient(MakeRGB15(14,0,0))|0x8000,0);
+			}			
 			DSVertex3v16( (x)<<10, yv, ya );
 			DSVertex3v16( (x)<<10, yv1, yb );
 			DSVertex3v16( (x+1)<<10, yv1, yc );
@@ -137,7 +145,7 @@ void voxelSpiral(int t) {
 }
 
 uint8_t lowerscreen_update( uint32_t t ) {
-	voxelSpiral(t);
+	gameGfx(t);
 	return 0;
 }
 
