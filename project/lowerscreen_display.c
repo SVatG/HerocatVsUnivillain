@@ -10,8 +10,8 @@
 #include "RainbowTable.h"
 #include "perlin.h"
 
-#define RESX 50
-#define RESY 50
+#define RESX 40
+#define RESY 40
 
 int noise[RESX+1][RESY+1];
 
@@ -69,6 +69,7 @@ void lowerscreen_init() {
 	loadVRAMIndirect( "nitro:/gfx/aocubes.pal.bin", PALRAM_A,256*2);
 }
 
+int yp = 0;
 void voxelSpiral(int t) {
 	static uint8_t ri = 0;
 	DSMatrixMode(DS_POSITION_AND_VECTOR);
@@ -85,29 +86,49 @@ void voxelSpiral(int t) {
 	DISP3DCNT|=DS_OUTLINE;
 	DSPolygonAttributes(DS_POLY_MODE_MODULATION|DS_POLY_CULL_NONE|DS_POLY_LIGHT0|DS_POLY_ALPHA(31));
 
-	DSRotateYf(t);
-	DSRotateXf(60);
-	
+	//DSRotateYf(t);
+	//DSRotateXf(0);
+
+	DSMaterialDiffuseAndAmbient(MakeRGB15(10,5,0)|0x8000,0);
+
+	int movf = (t<<10)%(1<<10);
+	if( movf == 0 ) {
+		yp++;
+		for( int x = -RESX/2; x <= RESX/2; x++ ) {
+			noise[x+RESX/2][(yp)%RESY] = (noise_at((x+RESX/2)/40.0,-(-yp-0.1*20.0-RESY)/40.0,1*0.01)*5.0);
+		}
+	}
+			
 	DSBegin(DS_QUADS);
 	for( int x = -RESX/2; x < RESX/2; x++ ) {
 		for( int y = -RESY/2; y < RESY/2; y++ ) {
-			int shift = -5000;
-			int ya = (noise[x+RESX/2][y+RESY/2]<<10)-(abs(x)<<7)+((y+RESY/2)<<7)-shift;
-			int yb = (noise[x+RESX/2][y+RESY/2+1]<<10)-(abs(x)<<7)+((y+RESY/2+1)<<7)-shift;
-			int yc = (noise[x+RESX/2+1][y+RESY/2+1]<<10)-(abs(x+1)<<7)+((y+RESY/2+1)<<7)-shift;
-			int yd = (noise[x+RESX/2+1][y+RESY/2]<<10)-(abs(x+1)<<7)+((y+RESY/2)<<7)-shift;
-			
-			DSMaterialDiffuseAndAmbient(rainbowTable[(x+y+200)%255]|0x8000,0);
+			int yv = (y<<10)-movf;
+			int yv1 = ((y+1)<<10)-movf;
+			int yt = (yv+(RESY<<9)) >> 8;
+			int yt1 = (yv1+(RESY<<9)) >> 8;
+			int ys = (yt*yt);
+			int ys1 = (yt1*yt1);
+
+			int shift = 15000;
+			int na = noise[x+RESX/2][(y+RESY/2+yp)%RESY];
+			int nb = noise[x+RESX/2][(y+1+RESY/2+yp)%RESY];
+			int nc = noise[x+1+RESX/2][(y+1+RESY/2+yp)%RESY];
+			int nd = noise[x+1+RESX/2][(y+RESY/2+yp)%RESY];
+			int ya = (na<<10)-ys+shift-(abs(x)<<8);
+			int yb = (nb<<10)-ys1+shift-(abs(x)<<8);
+			int yc = (nc<<10)-ys1+shift-(abs(x+1)<<8);
+			int yd = (nd<<10)-ys+shift-(abs(x+1)<<8);
+
 			vec3_t a = vec3((0<<10), ya-yb, -(1<<10));
 			vec3_t b = vec3(-(1<<10), ya-yc, -(1<<10));
 			vec3_t n = vec3cross(a,b);
 			n = vec3norm(n);
 			DSNormal3f(-n.x,-n.y,-n.z);
 			
-			DSVertex3v16( (x)<<10,   ya, (y)<<10   );
-			DSVertex3v16( (x)<<10,   yb, (y+1)<<10 );
-			DSVertex3v16( (x+1)<<10, yc, (y+1)<<10 );
-			DSVertex3v16( (x+1)<<10, yd, (y)<<10   );
+			DSVertex3v16( (x)<<10, yv, ya );
+			DSVertex3v16( (x)<<10, yv1, yb );
+			DSVertex3v16( (x+1)<<10, yv1, yc );
+			DSVertex3v16( (x+1)<<10, yv, yd );
 		}
 	}
 	DSEnd();
