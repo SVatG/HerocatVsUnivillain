@@ -2,12 +2,14 @@
 NAME = rainbows
 
 # Object files, for the ARM9 binary and the ARM7 binary
-OBJS = Main.o nitrofs.o \
-       BoxBlock.o Loader.o VoxelBlock.o RainbowTable.o \
-       DS3D/DS3D.o DS3D/Utils.o DS3D/Vector/VectorFixed.o \
+OBJS = Main.o Truchet.o Radial.o Tunnel.o Pens.o ARM.o Drawing.o nitrofs.o kitten.o \
+       effect5.o effect6.o BoxBlock.o Loader.o VoxelBlock.o \
+       RainbowTable.o \
+       DS3D/DS3D.o DS3D/Utils.o DS3D/Vector/VectorFixed.o DS3D/Vector/Vector.o \
        DS3D/Vector/MatrixFixed.o DS3D/Vector/QuaternionFixed.o \
-       lowerscreen_display.o perlin.o DS3D/Vector/Vector.o \
-       menu_display.o
+       lowerscreen_display.o perlin.o \
+       menu_display.o \
+       game_stats.o
 
 OBJS7 = Main.arm7.o
 
@@ -21,7 +23,10 @@ LIBS7 = -L$(DEVKITPRO)/libnds/lib -lnds7 -lmm7
 # nitrofs under /gfx.
 # This needs work so that the images are not remade every time the binary is
 # compiled.
-BITMAPS=gfx/starfielda.bin gfx/starfieldb.bin
+BITMAPS=gfx/kitten_walk1.bin gfx/kitten_walk2.bin gfx/kitten_walk3.bin gfx/kitten_walk4.bin \
+	gfx/kitten_stand1.bin gfx/kitten_stand2.bin gfx/kitten_stand3.bin \
+	gfx/aocubes.bin gfx/metaballs.bin gfx/unicorn.bin gfx/clouds.bin \
+	gfx/svatg.bin gfx/bolder1.bin gfx/eis.bin gfx/kirsche.bin gfx/stars.bin
 
 # Compiler setup
 CC = $(DEVKITARM)/bin/arm-eabi-gcc
@@ -95,10 +100,9 @@ install: $(NAME).nds
 
 # Send binary to flash card for testing on the system
 todisk: $(NAME).nds
-	/bin/rm -rf disk
-	/bin/mkdir disk
+	/bin/mkdir -p disk
 	/usr/bin/sudo mount /dev/sdb1 disk
 	/usr/bin/sudo cp $(NAME).nds disk/
 	/bin/sleep 1
 	/usr/bin/sudo umount disk
-	/bin/rm -rf disk
+	/bin/rmdir disk

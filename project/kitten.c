@@ -11,7 +11,12 @@
 #include "kitten.h"
 #include "Hardware.h"
 
-#define FRAME_DELAY 8
+#include "game_stats.h"
+
+// animation speed
+#define FRAME_DELAY 0
+// movement speed
+#define KITTEN_SPEED 4
 
 int nitroLoad(char *path, uint16_t* buffer, uint32_t size) {
   int fd_reuse = open(path, O_RDONLY);
@@ -26,26 +31,46 @@ static uint16_t* loadSpriteA32( char* path ) {
 	return( newSprite );
 }
 
+static inline void KittenRotator(Kitten* cat) {
+      oamRotateScale(
+	    &oamMain,
+	    1,
+	    -512+(cat->x-32)*10,
+	    252,
+	    252
+      );
+}
+
 static void KittenGoLeft(Kitten* cat) {
-  if (cat->x > 0) { cat->x-=2; }
+  if (cat->x > 0) { cat->x-=KITTEN_SPEED; }
+  KittenRotator(cat);
 }
 
 static void KittenGoRight(Kitten* cat) {
-  if (cat->x < SCREEN_WIDTH-32-2) { cat->x+=2; }
+  if (cat->x < SCREEN_WIDTH-64) { cat->x+=KITTEN_SPEED; }
+  KittenRotator(cat);
 }
 
 void KittenInit(Kitten* cat) {
-  DISPCNT_A = DISPCNT_MODE_0 | DISPCNT_BG3_ON | DISPCNT_OBJ_ON | DISPCNT_ON;
+  //DISPCNT_A = DISPCNT_MODE_0 | DISPCNT_BG3_ON | DISPCNT_OBJ_ON | DISPCNT_ON;
+  DISPCNT_A = DISPCNT_MODE_5|DISPCNT_3D|DISPCNT_BG0_ON|DISPCNT_BG3_ON|DISPCNT_ON|DISPCNT_OBJ_ON;
   VRAMCNT_D = VRAMCNT_D_BG_VRAM_A_OFFS_128K;
   VRAMCNT_B = VRAMCNT_B_BG_VRAM_A_OFFS_0K;
 
   BG3CNT_A = BGxCNT_EXTENDED_BITMAP_16 | BGxCNT_BITMAP_SIZE_256x256 | BGxCNT_OVERFLOW_WRAP | BGxCNT_BITMAP_BASE_0K;
   BG3CNT_A = (BG3CNT_A&~BGxCNT_PRIORITY_MASK)|BGxCNT_PRIORITY_1;
   
+  BG3PA_A = (1 << 8);
+  BG3PB_A = 0;
+  BG3PC_A = 0;
+  BG3PD_A = (1 << 8);
+  BG3X_A = 0;
+  BG3Y_A = 0;
+  
   VRAMCNT_A = VRAMCNT_A_OBJ_VRAM_A;
   
   oamInit(&oamMain, SpriteMapping_1D_128, false);
-  oamInit(&oamSub, SpriteMapping_1D_128, false);
+  //oamInit(&oamSub, SpriteMapping_1D_128, false);
   
   cat->state=STANDING;
   cat->palette=NULL;
@@ -54,23 +79,23 @@ void KittenInit(Kitten* cat) {
   cat->frame=0;
   cat->frametime=0;
   
-  cat->spriteWalking[0] = loadSpriteA32("nitro:/gfx/lil_cat3_walk1.img.bin");
-  cat->spriteWalking[1] = loadSpriteA32("nitro:/gfx/lil_cat3_walk2.img.bin");
-  cat->spriteWalking[2] = loadSpriteA32("nitro:/gfx/lil_cat3_walk3.img.bin");
-  cat->spriteWalking[3] = loadSpriteA32("nitro:/gfx/lil_cat3_walk4.img.bin");
+  cat->spriteWalking[0] = loadSpriteA32("nitro:/gfx/kitten_walk1.img.bin");
+  cat->spriteWalking[1] = loadSpriteA32("nitro:/gfx/kitten_walk2.img.bin");
+  cat->spriteWalking[2] = loadSpriteA32("nitro:/gfx/kitten_walk3.img.bin");
+  cat->spriteWalking[3] = loadSpriteA32("nitro:/gfx/kitten_walk4.img.bin");
   
-  cat->spriteStanding[0] = loadSpriteA32("nitro:/gfx/lil_cat3_tail-L.img.bin");
-  cat->spriteStanding[1] = loadSpriteA32("nitro:/gfx/lil_cat3_tail-C.img.bin");
-  cat->spriteStanding[2] = loadSpriteA32("nitro:/gfx/lil_cat3_tail-R.img.bin");
+  cat->spriteStanding[0] = loadSpriteA32("nitro:/gfx/kitten_stand1.img.bin");
+  cat->spriteStanding[1] = loadSpriteA32("nitro:/gfx/kitten_stand2.img.bin");
+  cat->spriteStanding[2] = loadSpriteA32("nitro:/gfx/kitten_stand3.img.bin");
   cat->spriteStanding[3] = cat->spriteStanding[1];
   
   cat->palette = malloc(512);
-  nitroLoad("nitro:/gfx/lil_cat3_walk1.pal.bin", cat->palette, 512);
+  nitroLoad("nitro:/gfx/kitten_walk1.pal.bin", cat->palette, 512);
   dmaCopy(cat->palette, SPRITE_PALETTE, 512); //copy the sprites palette
 }
 
 static int KittenAnimate(Kitten* cat) {
-  if(cat->frametime++ > FRAME_DELAY) {
+  if(cat->frametime++ >= FRAME_DELAY) {
     cat->frametime=0;
     if (WALKING == cat->state) {
       if(cat->frame++ < sizeof(cat->spriteStanding)/sizeof(uint16_t*)-1 ) {
@@ -97,7 +122,7 @@ int KittenUpdate(Kitten* cat) {
     
     touchPosition touch;
     scanKeys();
-    
+
     int keys = keysHeld();
     
     if(keys & KEY_TOUCH) {
@@ -118,38 +143,34 @@ int KittenUpdate(Kitten* cat) {
     if(keys & KEY_LEFT) {
 	KittenGoLeft(cat);
 	cat->state = WALKING;
-      oamRotateScale(
-	    &oamMain,
-	    1,
-	    270,
-	    252,
-	    252
-      );
     } else if(keys & KEY_RIGHT) {
 	KittenGoRight(cat);
 	cat->state = WALKING;
       int swoop = (t<<13)/50;
-      oamRotateScale(
-	    &oamMain,
-	    1,
-	    -270,
-	    252,
-	    252
-      );
-    } else if (WALKING == cat->lastState) {
-      cat->state = STANDING;
+ //   } else if (WALKING == cat->lastState) {
+ //     cat->state = STANDING;
     } else {
-      cat->state = STANDING;
+      cat->state = WALKING; //STANDING
       if (cat->frame > sizeof(cat->spriteWalking)/sizeof(uint16_t*)-1)
       { cat->frame=0; }
-      oamRotateScale(
-	    &oamMain,
-	    1,
-	    0,
-	    256,
-	    256
-      );  
+//       oamRotateScale(
+// 	    &oamMain,
+// 	    1,
+// 	    0,
+// 	    256,
+// 	    256
+//       );  
     }
   KittenAnimate(cat);
   cat->lastState = cat->state;
+
+  cat->y = SCREEN_HEIGHT - 64 - floorCenterHeight() * 5;
+  
+  oamSet(&oamMain, 1, // 0
+	   cat->x, cat->y, 0, 0, SpriteSize_32x32, SpriteColorFormat_256Color, 
+	  cat->current_sprite,
+	   //-1, false, false, false, false, false);
+	   1, true, false, false, false, false);
+  
+  oamUpdate(&oamMain);
 }

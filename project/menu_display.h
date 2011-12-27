@@ -4,5 +4,6 @@
 void menu_init();
 u8 menu_init( u32 t );
 void menu_destroy();
+void gotoxy(int x, int y);
 
 #endif

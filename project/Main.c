@@ -4,6 +4,7 @@
 #include <nds/ndstypes.h>
 #include <nds/interrupts.h>
 #include <string.h>
+#include <game_stats.h>
 
 // Utilities to make development easier
 #include "Utils.h"
@@ -18,10 +19,14 @@
 #include <maxmod9.h>
 #include "music.h"
 
+#include "kitten.h"
+
 volatile uint32_t t;
 static void vblank();
 
 extern int tempImage;
+extern int noise[41][41];
+extern int yp;
 
 uint8_t ATTR_DTCM dtcm_buffer[12288];
 
@@ -61,11 +66,6 @@ int main()
 	nitroFSInitAdv( BINARY_NAME );
 	tempImage = malloc(256*256*2);
 
-	#ifdef DEBUG
-	//consoleDemoInit();
-	//iprintf( "Debug mode.\n" );
-	#endif
-
 	t = 0;
 
 	uint8_t *wram=(uint8_t *)0x3000000;
@@ -77,10 +77,14 @@ int main()
 
 	POWCNT1 = POWCNT1_ALL;
 
-	menu_init();
+	resetGame();
 	while(++t) {
-		menu_update(t);
- 		swiWaitForVBlank();	
+		consoleClear();
+		scoreAdd(2);
+		printOSD();		
+		lowerscreen_update(t);
+		KittenUpdate(&Cat);
+ 		swiWaitForVBlank();
 	}
 	
 	for(;;);

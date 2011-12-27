@@ -10,12 +10,10 @@
 #include "RainbowTable.h"
 #include "perlin.h"
 
+#include "game_stats.h"
+
 #define RESX 40
 #define RESY 40
-
-int noise[RESX+1][RESY+1];
-
-int highscore = 66666;
 
 void menu_init() {
 
@@ -50,10 +48,6 @@ void menu_init() {
 	loadVRAMIndirect( "nitro:/gfx/starfielda.pal.bin", PALRAM_B,256*2);
 
 	BG_PALETTE_SUB[255] = RGB15(31,31,31);
-
-	const int tile_base = 0;
-	const int map_base = 20;
-
 	consoleInit(0, 1,BgType_Text4bpp, BgSize_T_256x256, 39,0, true, true);
 
 	load8bVRAMIndirect( "nitro:/gfx/starfieldb.img.bin", VRAM_A_OFFS_32K,256*192);

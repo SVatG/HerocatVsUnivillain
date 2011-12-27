@@ -1,6 +1,7 @@
 // AO Cubes
 
 #include <nds.h>
+#include "game_stats.h"
 
 #include "DS3D/Utils.h"
 #include "DS3D/DS3D.h"
@@ -9,11 +10,6 @@
 #include "Loader.h"
 #include "RainbowTable.h"
 #include "perlin.h"
-
-#define RESX 40
-#define RESY 40
-
-int noise[RESX+1][RESY+1];
 
 void lowerscreen_init() {
 	
@@ -35,7 +31,8 @@ void lowerscreen_init() {
 		}
 	}
 	
-	DISPCNT_A=DISPCNT_MODE_5|DISPCNT_3D|DISPCNT_BG0_ON|DISPCNT_BG3_ON|DISPCNT_ON;
+	//DISPCNT_A=DISPCNT_MODE_5|DISPCNT_3D|DISPCNT_BG0_ON|DISPCNT_BG3_ON|DISPCNT_ON|DISPCNT_OBJ_ON;
+	//DISPCNT_A=DISPCNT_MODE_0|DISPCNT_3D|DISPCNT_BG0_ON|DISPCNT_BG3_ON|DISPCNT_ON|DISPCNT_OBJ_ON;
 	VRAMCNT_B = VRAMCNT_B_BG_VRAM_A;
 
 	DSInit3D();
@@ -48,24 +45,29 @@ void lowerscreen_init() {
 	DSLoadIdentity();
 	DSPerspectivef(100,256.0/192.0,1,1024);
 
-	BG3CNT_A = BGxCNT_EXTENDED_BITMAP_8 | BGxCNT_BITMAP_SIZE_256x256 | BGxCNT_OVERFLOW_TRANSPARENT | BGxCNT_BITMAP_BASE_0K;
-	BG3CNT_A = (BG3CNT_A&~BGxCNT_PRIORITY_MASK)|BGxCNT_PRIORITY_0;
+	BG3CNT_A = BGxCNT_EXTENDED_BITMAP_8 | BGxCNT_BITMAP_SIZE_256x256 | BGxCNT_OVERFLOW_TRANSPARENT | BGxCNT_BITMAP_BASE_32K;
+	BG3CNT_A = (BG3CNT_A&~BGxCNT_PRIORITY_MASK)|BGxCNT_PRIORITY_2;
 	BG3PA_A = (1 << 8);
 	BG3PB_A = 0;
 	BG3PC_A = 0;
 	BG3PD_A = (1 << 8);
 	BG3X_A = 0;
 	BG3Y_A = 0;
-
-	load8bVRAMIndirect( "nitro:/gfx/starfieldb.img.bin", VRAM_A_OFFS_0K,256*192*2);
-	loadVRAMIndirect( "nitro:/gfx/starfieldb.pal.bin", PALRAM_A,256*2);
-
-	load8bVRAMIndirect( "nitro:/gfx/starfielda.img.bin", VRAM_B_OFFS_0K,256*192*2);
+	
+	load8bVRAMIndirect( "nitro:/gfx/starfielda.img.bin", VRAM_B_OFFS_0K,256*192);
 	loadVRAMIndirect( "nitro:/gfx/starfielda.pal.bin", PALRAM_B,256*2);
+
+	BG_PALETTE_SUB[255] = RGB15(31,31,31);
+	consoleInit(0, 1,BgType_Text4bpp, BgSize_T_256x256, 39,0, true, true);
+	BG0CNT_A = (BG0CNT_A&~BGxCNT_PRIORITY_MASK)|BGxCNT_PRIORITY_1;
+
+	load8bVRAMIndirect( "nitro:/gfx/starfieldb.img.bin", VRAM_A_OFFS_32K,256*192);
+	loadVRAMIndirect( "nitro:/gfx/starfieldb.pal.bin", PALRAM_A,256*2-1);
 }
 
-int yp = 0;
 void gameGfx(int t) {
+	gotoxy(1,1);
+	iprintf("Score: 44444\n");
 	static uint8_t ri = 0;
 	DSMatrixMode(DS_POSITION_AND_VECTOR);
 	DSLoadIdentity();
