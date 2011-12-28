@@ -29,6 +29,7 @@ extern int tempImage;
 extern int noise[41][41];
 extern int yp;
 extern int stopfloor;
+int gameFinished;
 
 uint8_t ATTR_DTCM dtcm_buffer[12288];
 
@@ -203,6 +204,7 @@ int main()
 	resetGame();
 	diaboxa = loadSpriteA64("nitro:/gfx/textboxleft.img.bin");
 	diaboxb = loadSpriteA64("nitro:/gfx/textboxcenter.img.bin");
+	
 
 	while(1) {
 		menu_init();
@@ -210,6 +212,10 @@ int main()
 		while(menuRunning == 1) {
 			oamClear(&oamMain,0,0);
 			oamClear(&oamSub,0,0);
+
+			oamUpdate(&oamMain);
+			oamUpdate(&oamSub);
+			
 			menu_update(t++);
 			scanKeys();
 			int keys = keysDown();
@@ -303,11 +309,17 @@ int main()
 				catShoot(t);
 			}
 			printOSD();
-			if(t >= 25000) {
-				lowerscreen_update(25000);
+			if(t >= 25) {
+				stopfloor = 1;				
+				lowerscreen_update(2500);
+				spawnBoss();
 			}
 			else {
 				lowerscreen_update(t);
+			}
+
+			if(gameFinished) {
+				gameRunning = 0;
 			}
 			swiWaitForVBlank();
 		}

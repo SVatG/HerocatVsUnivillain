@@ -14,6 +14,8 @@
 #include <maxmod9.h>
 #include "music.h"
 
+extern int gameFinished;
+
 int nitroLoad(char *path, uint16_t* buffer, uint32_t size) {
   int fd_reuse = open(path, O_RDONLY);
   read(fd_reuse, buffer, size);
@@ -93,6 +95,7 @@ void resetGame() {
 	catLavad = 0;
 	catLastDied = 0;
 	catShotLast = 0;
+	gameFinished = 0;
 }
 
 int floorLeftHeight() {
