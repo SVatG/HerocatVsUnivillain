@@ -184,8 +184,8 @@ int updateBullets() {
 						}
 					}
 					if( evilUnicorns[3].active == 1  ) {
-						int unix = abs((((evilUnicorns[3].x/256)+32)) - ((bullets[3].x/256)+8));
-						int uniy = abs((((evilUnicorns[3].y/256)-32)) - ((bullets[3].y/256)+8));
+						int unix = abs((((evilUnicorns[3].x/256)+32)) - ((bullets[i].x/256)+8));
+						int uniy = abs((((evilUnicorns[3].y/256)-32)) - ((bullets[i].y/256)+8));
 						if(
 							(unix <= 5 && uniy <= 25) || (unix <= 64 && uniy <= 9)
 						) {

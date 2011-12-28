@@ -22,6 +22,8 @@
 #include "kitten.h"
 #include "bullets.h"
 
+static char card_id[5] = { 0,0,0,0,0 }; // for saving
+
 volatile uint32_t t;
 static void vblank();
 
@@ -169,6 +171,15 @@ void hidediabox() {
 	);
 }
 
+  /* Return true if the card id is 'PASS' */
+  static int is_homebrew_cartridge() {
+    return 
+      card_id[0] == 'P' &&
+      card_id[1] == 'A' &&
+      card_id[2] == 'S' &&
+      card_id[3] == 'S';
+  }
+
 int main()
 {
 	// Turn on everything.
@@ -181,6 +192,11 @@ int main()
 	// Init NitroFS for data loading.
 	nitroFSInitAdv( BINARY_NAME );
 	tempImage = malloc(256*256*2);
+	
+	/* Copy contents of the 4 character ROM identifier into a local
+       variable. This should be 'PASS' for all homebrew ROM's. The
+       identifier is located at 0x080000AC.*/
+	memcpy(card_id, (char*)0x080000AC, 4);
 
 	uint8_t *wram=(uint8_t *)0x3000000;
 //	memset(wram,0,128*96);
@@ -237,7 +253,6 @@ int main()
 		while(gameRunning == 1) {
 			consoleClear();
 			gotoxy(1,4);
-			iprintf("t = %d\n", t);
 			if( mode != 0 ) {
 				t++;
 				spc++;
@@ -245,7 +260,6 @@ int main()
 				stopfloor = 0;
 				updateBullets();
 				updateAllUnicorns(t);
-				scoreAdd(1);				
 				KittenUpdate(&Cat);
 				killCatIfDying(t);
 				oamClear(&oamMain,0,0);
@@ -309,12 +323,15 @@ int main()
 				catShoot(t);
 			}
 			printOSD();
-			if(t >= 25) {
-				stopfloor = 1;				
-				lowerscreen_update(2500);
+			if(t >= 2550) {
+				stopfloor = 1;
+				lowerscreen_update(25);
 				spawnBoss();
 			}
 			else {
+				if(mode != 0) {
+					scoreAdd(1);
+				}
 				lowerscreen_update(t);
 			}
 

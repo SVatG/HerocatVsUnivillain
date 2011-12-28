@@ -42,6 +42,9 @@ void menuGfx(int t) {
 	else {
 		iprintf("  Start game \n");
 	}
+
+	gotoxy(1,20);
+	iprintf("gfx: bluesceada\n code: halcy, bluesceada\n zik: Saga_Musix\n");
 }
 
 uint8_t menu_update( uint32_t t ) {

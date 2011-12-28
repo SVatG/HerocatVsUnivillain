@@ -15,6 +15,7 @@
 #include "music.h"
 
 extern int gameFinished;
+#define SRAM          ((uint8*)0x0A000000)
 
 int nitroLoad(char *path, uint16_t* buffer, uint32_t size) {
   int fd_reuse = open(path, O_RDONLY);
@@ -70,6 +71,10 @@ int catLastDied;
 int catShotLast = 0;
 int catMurdered = 0;
 
+void loadHighscore() {
+	highscore = *SRAM;
+}
+
 void initGame() {
 	yp = 0;
 	catShot = 0;
@@ -77,6 +82,7 @@ void initGame() {
 	KittenInit(&Cat);
 	initStuffSprites();
 	lowerscreen_init();
+	loadHighscore();
 }
 
 void resetGame() {
@@ -192,5 +198,8 @@ int catRecentlyDied() {
 
 void scoreAdd(int howMuch) {
 	score += howMuch;
+	if (score > highscore) {
+	  highscore = score;
+	}
 }
 

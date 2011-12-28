@@ -1,5 +1,5 @@
 # Binary name.
-NAME = rainbows
+NAME = uni
 
 # Object files, for the ARM9 binary and the ARM7 binary
 OBJS = Main.o Truchet.o Radial.o Tunnel.o Pens.o ARM.o Drawing.o nitrofs.o kitten.o \
