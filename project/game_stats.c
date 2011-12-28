@@ -44,6 +44,12 @@ uint16_t* loadSpriteB64( char* path ) {
 	return( newSprite );
 }
 
+// Load an 64x64 sprite into A OBJ RAM, return pointer.
+uint16_t* loadSpriteA64( char* path ) {
+	uint16_t* newSprite = oamAllocateGfx(&oamMain, SpriteSize_64x64, SpriteColorFormat_256Color);
+	nitroLoad( path, newSprite, 64*64 );
+	return( newSprite );
+}
 
 int noise[RESX+1][RESY+1];
 int yp = 0;
@@ -51,7 +57,12 @@ Kitten Cat;
 int highscore;
 int score;
 int catShot;
+int catLavad;
 int catBullets;
+int catLives;
+int catLastDied;
+int catShotLast = 0;
+int catMurdered = 0;
 
 void initGame() {
 	yp = 0;
@@ -65,12 +76,19 @@ void initGame() {
 void resetGame() {
 	yp = 0;
 	catShot = 0;
+	catLavad = 0;
 	catBullets = 20;
 	KittenReset(&Cat);
 	resetBullets();
 	resetUnicorns();
 	resetEvilUnicorns();
 	lowerscreen_reset();
+	catLives = 3;
+	catMurdered = 0;
+	catShot = 0;
+	catLavad = 0;
+	catLastDied = 0;
+	catShotLast = 0;
 }
 
 int floorLeftHeight() {
@@ -97,9 +115,8 @@ int distToCat(int x, int y) {
 	return sqrt((x-(Cat.x+16))*(x-(Cat.x+16))+(y-(Cat.y+16))*(y-(Cat.y+16)));
 }
 
-int catShotLast = 0;
 int catShoot(int t) {
-	if(t - catShotLast > 30) {
+	if(t - catShotLast > 5) {
 		if(catBullets > 0) {
 			catBullets--;
 			catShotLast = t;
@@ -129,10 +146,34 @@ void printOSD() {
 	iprintf("Score: %d\n", score);
 	gotoxy(1,2);	
 	iprintf("Bullets: %d\n", catBullets);
-	if(catOnLava()) {
-		gotoxy(1,2);
-		iprintf("Cat status: Dead\n");
+	gotoxy(1,3);
+	iprintf("Lives: %d\n", catLives);
+}
+
+void killCatIfDying(int t) {
+	if(t - catLastDied > 20) {
+		if(catOnLava()) {
+			catLavad = 1;
+			catLastDied = t;
+		}
+		if(catShot) {
+			catMurdered = 1;
+			catLastDied = t;
+		}
+		catShot = 0;
 	}
+}
+
+int catRecentlyDied() {
+	if(catLavad == 1 || catMurdered == 1) {
+		catLavad = 0;
+		catMurdered = 0;
+		catLives--;
+		if(catLives == -1) {
+			return 1;
+		}
+	}
+	return 0;
 }
 
 void scoreAdd(int howMuch) {

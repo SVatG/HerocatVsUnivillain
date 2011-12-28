@@ -54,6 +54,119 @@ void fadein(int t, int b) {
 	}
 }
 
+int diapos = 0;
+char* dialog[] = {
+	" Hero cat! This is Cat HQ \n calling!",
+	" The evil UNIVILLAIN has \n scrambled an army and is \n trying to ENSLAVE MANKIND!",
+	" We are short on missiles, so \n you must collect marshmallows \n from friendly unicorns!",
+	" This is the only way to \n destroy them! You are our \n last hope!",
+	" Hero Cat is... GO!!!",
+	" p.s. greets to Mercury, K2, \n Nuance and RNO.\n",
+	0
+};
+
+uint16_t* diaboxa;
+uint16_t* diaboxb;
+
+void showdiabox() {
+	oamSet(
+		&oamMain, 120,
+		0,
+		192-64,
+		1, 0,
+		SpriteSize_64x64,
+		SpriteColorFormat_256Color,
+		diaboxa,
+		-1,
+		true, false, false, false, false
+	);
+
+	oamSet(
+		&oamMain, 121,
+		64,
+		192-64,
+		1, 0,
+		SpriteSize_64x64,
+		SpriteColorFormat_256Color,
+		diaboxb,
+		-1,
+		true, false, false, false, false
+	);
+
+	oamSet(
+		&oamMain, 122,
+		128,
+		192-64,
+		1, 0,
+		SpriteSize_64x64,
+		SpriteColorFormat_256Color,
+		diaboxb,
+		-1,
+		true, false, false, false, false
+	);
+
+	oamSet(
+		&oamMain, 123,
+		192,
+		192-64,
+		1, 0,
+		SpriteSize_64x64,
+		SpriteColorFormat_256Color,
+		diaboxa,
+		-1,
+		true, false, true, false, false
+	);
+}
+
+void hidediabox() {
+	oamSet(
+		&oamMain, 120,
+		257,
+		192-64,
+		1, 0,
+		SpriteSize_64x64,
+		SpriteColorFormat_256Color,
+		diaboxa,
+		-1,
+		true, false, false, false, false
+	);
+
+	oamSet(
+		&oamMain, 121,
+		257,
+		192-64,
+		1, 0,
+		SpriteSize_64x64,
+		SpriteColorFormat_256Color,
+		diaboxb,
+		-1,
+		true, false, false, false, false
+	);
+
+	oamSet(
+		&oamMain, 122,
+		257,
+		192-64,
+		1, 0,
+		SpriteSize_64x64,
+		SpriteColorFormat_256Color,
+		diaboxb,
+		-1,
+		true, false, false, false, false
+	);
+
+	oamSet(
+		&oamMain, 123,
+		257,
+		192-64,
+		1, 0,
+		SpriteSize_64x64,
+		SpriteColorFormat_256Color,
+		diaboxa,
+		-1,
+		true, false, true, false, false
+	);
+}
 
 int main()
 {
@@ -79,7 +192,8 @@ int main()
 
 	initGame();
 	resetGame();
-
+	diaboxa = loadSpriteA64("nitro:/gfx/textboxleft.img.bin");
+	diaboxb = loadSpriteA64("nitro:/gfx/textboxcenter.img.bin");
 
 	while(1) {
 		menu_init();
@@ -87,12 +201,12 @@ int main()
 		while(menuRunning == 1) {
 			menu_update(t++);
 			scanKeys();
-			int keys = keysHeld();
+			int keys = keysDown();
 			if(keys & KEY_A) {
 				menuRunning = 0;
 				resetGame();
 				t = 0;
-				scanKeys();
+				diapos = 0;
 			}
 			swiWaitForVBlank();
 			
@@ -104,6 +218,7 @@ int main()
 		int mode = 0;
 		int gameRunning = 1;
 		while(gameRunning == 1) {
+			consoleClear();
 
 			if( mode != 0 ) {
 				t++;
@@ -112,10 +227,34 @@ int main()
 				stopfloor = 0;
 				updateBullets();
 				updateAllUnicorns(t);
+				scoreAdd(1);				
 				KittenUpdate(&Cat);
+				killCatIfDying(t);
+				if( catRecentlyDied() == 1 ) {
+					gameRunning = 0;
+				}
 			}
 			else {
+				if(dialog[diapos] != 0) {
+					gotoxy(0,17);
+					iprintf(dialog[diapos]);
+				}
+				
 				stopfloor = 1;
+				scanKeys();
+				int keys = keysDown();
+				showdiabox();
+				if(keys & KEY_A) {
+					scanKeys();
+					diapos++;
+					if(dialog[diapos] == 0) {
+						stopfloor = 0;
+						diapos++;
+						mode = 1;
+						hidediabox();
+					}
+				}
+				oamUpdate(&oamMain);
 			}
 
 			if(spc >= 100) {
@@ -147,10 +286,6 @@ int main()
 			if(keys & KEY_A) {
 				catShoot(t);
 			}
-			consoleClear();
-			gotoxy(3,3);
-			iprintf("t = %d\n", t);
-			scoreAdd(1);
 			printOSD();
 			if(t >= 25000) {
 				lowerscreen_update(25000);
