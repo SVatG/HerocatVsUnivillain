@@ -56,7 +56,7 @@ int catBullets;
 void resetGame() {
 	yp = 0;
 	catShot = 0;
-	catBullets = 0;
+	catBullets = 20;
 	KittenInit(&Cat);
 	initBullets();
 	initUnicorns();
@@ -94,9 +94,17 @@ int catShoot(int t) {
 		if(catBullets > 0) {
 			catBullets--;
 			catShotLast = t;
-			spawnBullet(Cat.x+16,Cat.y+192+16,0,-1600,0,-700,0,1);
+			spawnBullet(Cat.x+16,Cat.y+192+16,0,-3000,0,-700,0,1);
 		}
 	}
+}
+
+int unicornLeft() {
+	spawnUnicorn(256,-64,-1200,600);
+}
+
+int unicornRight() {
+	spawnUnicorn(-64,-64,1200,600);
 }
 
 void printOSD() {

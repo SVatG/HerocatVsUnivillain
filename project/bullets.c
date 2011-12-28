@@ -22,7 +22,11 @@ typedef struct
 	int32_t dx;
 	int32_t dy;
 	int spc;
+	int sf;
 	int active;
+	int lrc;
+	int lrmax;
+	int dead;
 } EvilUnicorn;
 
 typedef struct
@@ -86,6 +90,8 @@ void initEvilUnicorns() {
 		evilUnicorns[i].active = 0;
 		evilUnicorns[i].x = 257;
 		evilUnicorns[i].spc = 0;
+		evilUnicorns[i].lrc = 0;
+		evilUnicorns[i].dead = 0;
 	}
 }
 
@@ -137,11 +143,33 @@ int updateBullets() {
 				catBullets++;
 				bullets[i].active = 0;
 				bullets[i].x = 257*256;
+				scoreAdd(10);
 			}
 			if( dist <= 6  && bullets[i].alleg == 1) {
 				catShot = 1;
 				bullets[i].active = 0;
 				bullets[i].x = 257*256;
+			}
+
+			if(bullets[i].alleg == 0) {
+				for( int u = 0; u < 3; u++ ) {
+					if( evilUnicorns[u].active == 1 && evilUnicorns[u].dead == 0 ) {
+						int unidist = sqrt(
+							((evilUnicorns[u].x/256+32) - (bullets[i].x/256+8))*
+							((evilUnicorns[u].x/256+32) - (bullets[i].x/256+8)) +
+							((evilUnicorns[u].y/256+32) - (bullets[i].y/256+8))*
+							((evilUnicorns[u].y/256+32) - (bullets[i].y/256+8))
+						);
+						if(unidist <= 25) {
+							scoreAdd(200);
+							bullets[i].active = 0;
+							bullets[i].x = 257*256;
+							evilUnicorns[u].dead = 1;
+							evilUnicorns[u].dy = -3000;
+							evilUnicorns[u].dx = 0;
+						}
+					}
+				}
 			}
 			
 			if( suby > 192 ) {
@@ -220,7 +248,7 @@ void spawnUnicorn(int x, int y,  int dx,  int dy) {
 	niceUnicorns[nextUnicorn].dy = dy;
 }
 
-void spawnEvilUnicorn(int x, int y,  int dx,  int dy) {
+void spawnEvilUnicorn(int x, int y,  int dx,  int dy, int sf) {
 	if( evilUnicorns[nextEvilUnicorn].active == 1 ) {
 		for(int i = 0; i < 3; i++) {
 			nextEvilUnicorn++;
@@ -239,6 +267,14 @@ void spawnEvilUnicorn(int x, int y,  int dx,  int dy) {
 	evilUnicorns[nextEvilUnicorn].y = y*256;
 	evilUnicorns[nextEvilUnicorn].dx = dx;
 	evilUnicorns[nextEvilUnicorn].dy = dy;
+
+	evilUnicorns[nextEvilUnicorn].spc = 0;
+	evilUnicorns[nextEvilUnicorn].sf = sf;
+
+	evilUnicorns[nextEvilUnicorn].lrc = 0;
+	evilUnicorns[nextEvilUnicorn].lrmax = 0;
+
+	evilUnicorns[nextEvilUnicorn].dead = 0;
 }
 
 int updateAllUnicorns(int t) {
@@ -249,7 +285,8 @@ int updateAllUnicorns(int t) {
 			niceUnicorns[i].spc++;
 			if(niceUnicorns[i].spc >= 20) {
 				niceUnicorns[i].spc = 0;
-				spawnBullet(niceUnicorns[i].x/256+41,niceUnicorns[i].y/256+21,(t%700)-350,1000,0,700,2,0);
+				int bulx = niceUnicorns[i].dx < 0 ? niceUnicorns[i].x/256+41 : niceUnicorns[i].x/256+(64-41);
+				spawnBullet(bulx,niceUnicorns[i].y/256+21,(t%700)-350,1000,0,700,2,0);
 			}
 			if(niceUnicorns[i].x/256 > 256 || niceUnicorns[i].x/256 < -64) {
 				niceUnicorns[i].active = 0;
@@ -267,7 +304,7 @@ int updateAllUnicorns(int t) {
 				SpriteColorFormat_256Color,
 				unicornSprite,
 				-1,
-				true, false, false, false, false
+				true, false, niceUnicorns[i].dx > 0, false, false
 			);
 		}
 	}
@@ -277,12 +314,29 @@ int updateAllUnicorns(int t) {
 			evilUnicorns[i].x += evilUnicorns[i].dx;
 			evilUnicorns[i].y += evilUnicorns[i].dy;
 			evilUnicorns[i].spc++;
-			
-			if(evilUnicorns[i].spc >= 10) {
-				evilUnicorns[i].spc = 0;
-				spawnBullet(evilUnicorns[i].x/256+32-8,evilUnicorns[i].y/256+42,(t%550)-275,1200,0,0,1,2);
+			evilUnicorns[i].lrc++;
+	
+			if(evilUnicorns[i].lrc >= 60 && evilUnicorns[i].dead == 0) {
+				evilUnicorns[i].lrmax++;
+
+				if(evilUnicorns[i].lrmax < 4) {
+					evilUnicorns[i].dx = -evilUnicorns[i].dx;
+					evilUnicorns[i].dy = 0;
+					evilUnicorns[i].lrc = 20;
+				}
+				else {
+					evilUnicorns[i].dx = 0;
+					evilUnicorns[i].dy = -1500;
+				}
+					
 			}
-			if(evilUnicorns[i].x/256 > 256 || evilUnicorns[i].x/256 < -64) {
+			if( evilUnicorns[i].dead == 0 ) {
+				if(evilUnicorns[i].spc >= evilUnicorns[i].sf) {
+					evilUnicorns[i].spc = 0;
+					spawnBullet(evilUnicorns[i].x/256+32-8,evilUnicorns[i].y/256+42,(t%550)-275,1200,0,0,1,2);
+				}
+			}
+			if(evilUnicorns[i].x/256 > 256 || evilUnicorns[i].x/256 < -64 || evilUnicorns[i].y/256 < -64 ) {
 				evilUnicorns[i].active = 0;
 			}
 

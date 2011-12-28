@@ -16,7 +16,7 @@
 // animation speed
 #define FRAME_DELAY 0
 // movement speed
-#define KITTEN_SPEED 4
+#define KITTEN_SPEED 7
 
 static inline void KittenRotator(Kitten* cat) {
       oamRotateScale(

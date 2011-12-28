@@ -86,8 +86,8 @@ int main()
 		spc++;
 		if(spc >= 50) {
 			spc = 0;
-			spawnUnicorn(256,-64,-1200,600);
-			spawnEvilUnicorn(-64,10,1200,500);
+			unicornRight();
+			spawnEvilUnicorn(-64,10,1200,500,20);
 		}
 
 		int keys = keysHeld();
