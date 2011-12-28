@@ -63,6 +63,8 @@ void KittenInit(Kitten* cat) {
   cat->spriteStanding[2] = loadSpriteA32("nitro:/gfx/kitten_stand3.img.bin");
   cat->spriteStanding[3] = cat->spriteStanding[1];
   
+  cat->blink_sprite = loadSpriteA32(NULL);
+  
   cat->palette = malloc(512);
   nitroLoad("nitro:/gfx/palette.pal.bin", cat->palette, 512);
   dmaCopy(cat->palette, SPRITE_PALETTE, 512); //copy the sprites palette
@@ -80,7 +82,15 @@ void KittenReset(Kitten* cat)  {
 static int KittenAnimate(Kitten* cat) {
   if(cat->frametime++ >= FRAME_DELAY) {
     cat->frametime=0;
-    if (WALKING == cat->state) {
+    if (catShouldBeBlinking) {
+      if(cat->frame == 0 ) {
+	cat->frame = 1;
+	cat->current_sprite = cat->blink_sprite;
+      } else {
+	cat->frame = 0;
+	cat->current_sprite = cat->spriteWalking[cat->frame];
+      }
+    } else if (WALKING == cat->state) {
       if(cat->frame++ < sizeof(cat->spriteStanding)/sizeof(uint16_t*)-1 ) {
 	cat->current_sprite = cat->spriteWalking[cat->frame];
       } else {

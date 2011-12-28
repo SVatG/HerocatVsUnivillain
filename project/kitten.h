@@ -11,6 +11,7 @@ typedef struct
 	uint16_t* spriteWalking[4];
 	uint16_t* spriteStanding[4];
 	uint16_t* current_sprite;
+	uint16_t* blink_sprite;
 	
 	uint8_t   frametime;
 	
