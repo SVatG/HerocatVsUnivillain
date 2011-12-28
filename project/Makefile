@@ -9,7 +9,8 @@ OBJS = Main.o Truchet.o Radial.o Tunnel.o Pens.o ARM.o Drawing.o nitrofs.o kitte
        DS3D/Vector/MatrixFixed.o DS3D/Vector/QuaternionFixed.o \
        lowerscreen_display.o perlin.o \
        menu_display.o \
-       game_stats.o
+       game_stats.o \
+       bullets.o
 
 OBJS7 = Main.arm7.o
 
@@ -26,7 +27,8 @@ LIBS7 = -L$(DEVKITPRO)/libnds/lib -lnds7 -lmm7
 BITMAPS=gfx/kitten_walk1.bin gfx/kitten_walk2.bin gfx/kitten_walk3.bin gfx/kitten_walk4.bin \
 	gfx/kitten_stand1.bin gfx/kitten_stand2.bin gfx/kitten_stand3.bin \
 	gfx/aocubes.bin gfx/metaballs.bin gfx/unicorn.bin gfx/clouds.bin \
-	gfx/svatg.bin gfx/bolder1.bin gfx/eis.bin gfx/kirsche.bin gfx/stars.bin
+	gfx/svatg.bin gfx/bolder1.bin gfx/eis.bin gfx/kirsche.bin gfx/stars.bin \
+	gfx/mallow.bin gfx/mallow_pink.bin 
 
 # Compiler setup
 CC = $(DEVKITARM)/bin/arm-eabi-gcc

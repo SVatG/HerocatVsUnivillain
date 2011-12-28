@@ -20,6 +20,7 @@
 #include "music.h"
 
 #include "kitten.h"
+#include "bullets.h"
 
 volatile uint32_t t;
 static void vblank();
@@ -72,17 +73,28 @@ int main()
 //	memset(wram,0,128*96);
 
 	mmInitDefault( "nitro:/zik/music.bin" );
-	mmLoad( MOD_RAINBOWS_CLN );
-	mmStart( MOD_RAINBOWS_CLN, MM_PLAY_ONCE );
+	mmLoad( MOD_SVATGGAME );
+	mmStart( MOD_SVATGGAME, MM_PLAY_ONCE );
 
 	POWCNT1 = POWCNT1_ALL;
 
 	resetGame();
-	while(++t) {
+	
+	while(1) {
+		t++;
+		if(t % 40 <= 0) {
+			spawnBullet(128,4,2,1000,0,700,2,0);
+		}
+
+		int keys = keysHeld();
+		if(keys & KEY_A) {
+			catShoot(t);
+		}
 		consoleClear();
 		scoreAdd(2);
-		printOSD();		
+		printOSD();
 		lowerscreen_update(t);
+		updateBullets();
 		KittenUpdate(&Cat);
  		swiWaitForVBlank();
 	}

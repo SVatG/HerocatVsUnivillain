@@ -12,10 +12,6 @@
 #include "perlin.h"
 
 void lowerscreen_init() {
-	
-	DISPCNT_B = DISPCNT_MODE_5 | DISPCNT_BG2_ON | DISPCNT_ON;
-	VRAMCNT_C = VRAMCNT_C_BG_VRAM_B;
-
 	BG2CNT_B = BGxCNT_EXTENDED_BITMAP_8 | BGxCNT_BITMAP_SIZE_256x256 | BGxCNT_OVERFLOW_TRANSPARENT | BGxCNT_BITMAP_BASE_0K;
 	BG2CNT_B = (BG2CNT_B&~BGxCNT_PRIORITY_MASK)|BGxCNT_PRIORITY_0;
 	BG2PA_B = (1 << 8);
@@ -33,8 +29,7 @@ void lowerscreen_init() {
 	
 	//DISPCNT_A=DISPCNT_MODE_5|DISPCNT_3D|DISPCNT_BG0_ON|DISPCNT_BG3_ON|DISPCNT_ON|DISPCNT_OBJ_ON;
 	//DISPCNT_A=DISPCNT_MODE_0|DISPCNT_3D|DISPCNT_BG0_ON|DISPCNT_BG3_ON|DISPCNT_ON|DISPCNT_OBJ_ON;
-	VRAMCNT_B = VRAMCNT_B_BG_VRAM_A;
-
+	
 	DSInit3D();
 	DSViewport(0,0,255,191);
 
@@ -66,8 +61,6 @@ void lowerscreen_init() {
 }
 
 void gameGfx(int t) {
-	gotoxy(1,1);
-	iprintf("Score: 44444\n");
 	static uint8_t ri = 0;
 	DSMatrixMode(DS_POSITION_AND_VECTOR);
 	DSLoadIdentity();

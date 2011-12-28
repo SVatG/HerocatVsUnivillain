@@ -18,19 +18,6 @@
 // movement speed
 #define KITTEN_SPEED 4
 
-int nitroLoad(char *path, uint16_t* buffer, uint32_t size) {
-  int fd_reuse = open(path, O_RDONLY);
-  read(fd_reuse, buffer, size);
-  close(fd_reuse);
-}
-
-// Load an 32x32 sprite into A/B OBJ RAM, return pointer.
-static uint16_t* loadSpriteA32( char* path ) {
-	uint16_t* newSprite = oamAllocateGfx(&oamMain, SpriteSize_32x32, SpriteColorFormat_256Color);
-	nitroLoad( path, newSprite, 32*32 );
-	return( newSprite );
-}
-
 static inline void KittenRotator(Kitten* cat) {
       oamRotateScale(
 	    &oamMain,
@@ -54,23 +41,15 @@ static void KittenGoRight(Kitten* cat) {
 void KittenInit(Kitten* cat) {
   //DISPCNT_A = DISPCNT_MODE_0 | DISPCNT_BG3_ON | DISPCNT_OBJ_ON | DISPCNT_ON;
   DISPCNT_A = DISPCNT_MODE_5|DISPCNT_3D|DISPCNT_BG0_ON|DISPCNT_BG3_ON|DISPCNT_ON|DISPCNT_OBJ_ON;
-  VRAMCNT_D = VRAMCNT_D_BG_VRAM_A_OFFS_128K;
-  VRAMCNT_B = VRAMCNT_B_BG_VRAM_A_OFFS_0K;
+  DISPCNT_B = DISPCNT_MODE_5|DISPCNT_BG2_ON|DISPCNT_ON|DISPCNT_OBJ_ON;
 
-  BG3CNT_A = BGxCNT_EXTENDED_BITMAP_16 | BGxCNT_BITMAP_SIZE_256x256 | BGxCNT_OVERFLOW_WRAP | BGxCNT_BITMAP_BASE_0K;
-  BG3CNT_A = (BG3CNT_A&~BGxCNT_PRIORITY_MASK)|BGxCNT_PRIORITY_1;
-  
-  BG3PA_A = (1 << 8);
-  BG3PB_A = 0;
-  BG3PC_A = 0;
-  BG3PD_A = (1 << 8);
-  BG3X_A = 0;
-  BG3Y_A = 0;
-  
   VRAMCNT_A = VRAMCNT_A_OBJ_VRAM_A;
-  
+  VRAMCNT_B = VRAMCNT_B_BG_VRAM_A_OFFS_0K;
+  VRAMCNT_C = VRAMCNT_C_BG_VRAM_B;
+  VRAMCNT_D = VRAMCNT_D_OBJ_VRAM_B;
+
   oamInit(&oamMain, SpriteMapping_1D_128, false);
-  //oamInit(&oamSub, SpriteMapping_1D_128, false);
+  oamInit(&oamSub, SpriteMapping_1D_128, false);
   
   cat->state=STANDING;
   cat->palette=NULL;
@@ -92,6 +71,7 @@ void KittenInit(Kitten* cat) {
   cat->palette = malloc(512);
   nitroLoad("nitro:/gfx/kitten_walk1.pal.bin", cat->palette, 512);
   dmaCopy(cat->palette, SPRITE_PALETTE, 512); //copy the sprites palette
+  dmaCopy(cat->palette, SPRITE_PALETTE_SUB, 512); //copy the sprites palette  
 }
 
 static int KittenAnimate(Kitten* cat) {
@@ -173,4 +153,5 @@ int KittenUpdate(Kitten* cat) {
 	   1, true, false, false, false, false);
   
   oamUpdate(&oamMain);
+  oamUpdate(&oamSub);
 }
