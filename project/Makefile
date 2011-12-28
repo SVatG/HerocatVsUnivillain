@@ -24,7 +24,8 @@ LIBS7 = -L$(DEVKITPRO)/libnds/lib -lnds7 -lmm7
 # nitrofs under /gfx.
 # This needs work so that the images are not remade every time the binary is
 # compiled.
-BITMAPS=gfx/kitten_walk1.bin gfx/kitten_walk2.bin gfx/kitten_walk3.bin gfx/kitten_walk4.bin \
+BITMAPS=gfx/titlescreen1.bin \
+	gfx/kitten_walk1.bin gfx/kitten_walk2.bin gfx/kitten_walk3.bin gfx/kitten_walk4.bin \
 	gfx/kitten_stand1.bin gfx/kitten_stand2.bin gfx/kitten_stand3.bin \
 	gfx/aocubes.bin gfx/metaballs.bin gfx/unicorn.bin gfx/clouds.bin \
 	gfx/svatg.bin gfx/bolder1.bin gfx/eis.bin gfx/kirsche.bin gfx/stars.bin \

@@ -16,8 +16,8 @@
 #define RESY 40
 
 void menu_init() {
- load8bVRAMIndirect( "nitro:/gfx/starfielda.img.bin", VRAM_B_OFFS_0K,256*192);
-	loadVRAMIndirect( "nitro:/gfx/starfielda.pal.bin", PALRAM_B,256*2);
+	load8bVRAMIndirect( "nitro:/gfx/titlescreen1.img.bin", VRAM_B_OFFS_0K,256*192);
+	loadVRAMIndirect( "nitro:/gfx/titlescreen1.pal.bin", PALRAM_B,256*2);
 
 	load8bVRAMIndirect( "nitro:/gfx/starfieldb.img.bin", VRAM_A_OFFS_32K,256*192);
 	loadVRAMIndirect( "nitro:/gfx/starfieldb.pal.bin", PALRAM_A,256*2-1);
