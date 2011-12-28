@@ -14,7 +14,7 @@
 #define RESY 40
 
 extern int score;
-extern int highscore;
+extern int32_t highscore;
 extern Kitten Cat;
 extern int noise[RESX+1][RESY+1];
 extern int yp;

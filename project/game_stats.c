@@ -61,7 +61,7 @@ uint16_t* loadSpriteA64( char* path ) {
 int noise[RESX+1][RESY+1];
 int yp = 0;
 Kitten Cat;
-int highscore;
+int32_t highscore = 0;
 int score;
 int catShot;
 int catLavad;
@@ -71,8 +71,13 @@ int catLastDied;
 int catShotLast = 0;
 int catMurdered = 0;
 
+static void memcpy8(char* dest, char const* src, int size) {
+    while(size--) 
+      *dest++ = *src++;
+}
+
 void loadHighscore() {
-	highscore = *SRAM;
+	memcpy8((char*)&highscore, SRAM, 4);
 }
 
 void initGame() {
@@ -200,6 +205,7 @@ void scoreAdd(int howMuch) {
 	score += howMuch;
 	if (score > highscore) {
 	  highscore = score;
+	  memcpy8(SRAM, (char*)&highscore, 4);
 	}
 }
 
