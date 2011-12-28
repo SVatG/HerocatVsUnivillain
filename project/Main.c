@@ -4,7 +4,7 @@
 #include <nds/ndstypes.h>
 #include <nds/interrupts.h>
 #include <string.h>
-#include <game_stats.h>
+#include "game_stats.h"
 
 // Utilities to make development easier
 #include "Utils.h"
@@ -230,6 +230,8 @@ int main()
 				scoreAdd(1);				
 				KittenUpdate(&Cat);
 				killCatIfDying(t);
+				oamClear(&oamMain,0,0);
+				oamClear(&oamSub,0,0);
 				if( catRecentlyDied() == 1 ) {
 					gameRunning = 0;
 				}
