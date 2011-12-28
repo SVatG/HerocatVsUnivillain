@@ -15,7 +15,7 @@
 #include "music.h"
 
 extern int gameFinished;
-#define SRAM          ((uint8*)0x0A000000)
+#define SRAM ((uint8*)0x0A000000)
 
 int nitroLoad(char *path, uint16_t* buffer, uint32_t size) {
   int fd_reuse = open(path, O_RDONLY);
@@ -78,12 +78,13 @@ static void memcpy8(char* dest, char const* src, int size) {
 
 void loadHighscore() {
 	uint32_t already_run;
-	memcpy8((char*)&already_run, SRAM+4, 4);
+	highscore = 1337;
+	//memcpy8((char*)&already_run, SRAM+4, 4);
 	if (already_run == 0xdeadbeef) {
-	  memcpy8((char*)&highscore, SRAM, 4);
+	  //memcpy8((char*)&highscore, SRAM, 4);
 	} else {
 	  already_run = 0xdeadbeef;
-	  memcpy8(SRAM+4, (char*)&already_run, 4);
+	  //memcpy8(SRAM+4, (char*)&already_run, 4);
 	  highscore = 1337;
 	}
 }
@@ -214,7 +215,7 @@ void scoreAdd(int howMuch) {
 	score += howMuch;
 	if (score > highscore) {
 	  highscore = score;
-	  memcpy8(SRAM, (char*)&highscore, 4);
+	  //memcpy8(SRAM, (char*)&highscore, 4);
 	}
 }
 
