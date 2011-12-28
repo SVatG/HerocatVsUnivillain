@@ -69,7 +69,7 @@ void KittenInit(Kitten* cat) {
   cat->spriteStanding[3] = cat->spriteStanding[1];
   
   cat->palette = malloc(512);
-  nitroLoad("nitro:/gfx/kitten_walk1.pal.bin", cat->palette, 512);
+  nitroLoad("nitro:/gfx/palette.pal.bin", cat->palette, 512);
   dmaCopy(cat->palette, SPRITE_PALETTE, 512); //copy the sprites palette
   dmaCopy(cat->palette, SPRITE_PALETTE_SUB, 512); //copy the sprites palette  
 }

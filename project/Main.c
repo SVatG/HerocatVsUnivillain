@@ -79,11 +79,15 @@ int main()
 	POWCNT1 = POWCNT1_ALL;
 
 	resetGame();
-	
+
+	int spc = 0;
 	while(1) {
 		t++;
-		if(t % 40 <= 0) {
-			spawnBullet(128,4,2,1000,0,700,2,0);
+		spc++;
+		if(spc >= 50) {
+			spc = 0;
+			spawnUnicorn(256,-64,-1200,600);
+			spawnEvilUnicorn(-64,10,1200,500);
 		}
 
 		int keys = keysHeld();
@@ -95,6 +99,7 @@ int main()
 		printOSD();
 		lowerscreen_update(t);
 		updateBullets();
+		updateAllUnicorns(t);
 		KittenUpdate(&Cat);
  		swiWaitForVBlank();
 	}

@@ -37,6 +37,14 @@ uint16_t* loadSpriteB16( char* path ) {
 	return( newSprite );
 }
 
+// Load an 64x64 sprite into B OBJ RAM, return pointer.
+uint16_t* loadSpriteB64( char* path ) {
+	uint16_t* newSprite = oamAllocateGfx(&oamSub, SpriteSize_64x64, SpriteColorFormat_256Color);
+	nitroLoad( path, newSprite, 64*64 );
+	return( newSprite );
+}
+
+
 int noise[RESX+1][RESY+1];
 int yp = 0;
 Kitten Cat;
@@ -50,7 +58,9 @@ void resetGame() {
 	catShot = 0;
 	catBullets = 0;
 	KittenInit(&Cat);
-	initBullets();	
+	initBullets();
+	initUnicorns();
+	initEvilUnicorns();
 	lowerscreen_init();
 }
 
@@ -84,7 +94,7 @@ int catShoot(int t) {
 		if(catBullets > 0) {
 			catBullets--;
 			catShotLast = t;
-			spawnBullet(Cat.x+16,Cat.y+192+16,0,-1600,0,-700,2,0);
+			spawnBullet(Cat.x+16,Cat.y+192+16,0,-1600,0,-700,0,1);
 		}
 	}
 }
