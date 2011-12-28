@@ -185,9 +185,18 @@ int main()
 //	memset(wram,0,128*96);
 
 	mmInitDefault( "nitro:/zik/music.bin" );
+	
 	mmLoad( MOD_SVATGGAME );
+	mmLoadEffect( SFX_LASER	);
+	mmLoadEffect( SFX_MEOW );
+	mmLoadEffect( SFX_POWERUP );
+	mmLoadEffect( SFX_SLAUGHTER1 );
+	mmLoadEffect( SFX_SLAUGHTER2 );
+	mmLoadEffect( SFX_SLAUGHTER3 );
+	mmLoadEffect( SFX_SLAUGHTER4 );
+	
 	mmStart( MOD_SVATGGAME, MM_PLAY_ONCE );
-
+	
 	POWCNT1 = POWCNT1_ALL;
 
 	initGame();

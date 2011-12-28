@@ -18,6 +18,8 @@
 // movement speed
 #define KITTEN_SPEED 7
 
+extern int catShouldBeBlinking;
+
 static inline void KittenRotator(Kitten* cat) {
       oamRotateScale(
 	    &oamMain,

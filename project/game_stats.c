@@ -10,6 +10,10 @@
 #include "nitrofs.h"
 #include "bullets.h"
 
+// Sound!
+#include <maxmod9.h>
+#include "music.h"
+
 int nitroLoad(char *path, uint16_t* buffer, uint32_t size) {
   int fd_reuse = open(path, O_RDONLY);
   read(fd_reuse, buffer, size);
@@ -118,6 +122,7 @@ int distToCat(int x, int y) {
 int catShoot(int t) {
 	if(t - catShotLast > 5) {
 		if(catBullets > 0) {
+			mmEffect(SFX_LASER);
 			catBullets--;
 			catShotLast = t;
 			spawnBullet(Cat.x+16,Cat.y+192+16,0,-3000,0,-700,0,1);
@@ -150,8 +155,10 @@ void printOSD() {
 	iprintf("Lives: %d\n", catLives);
 }
 
+int catShouldBeBlinking;
 void killCatIfDying(int t) {
 	if(t - catLastDied > 20) {
+		catShouldBeBlinking = 0;
 		if(catOnLava()) {
 			catLavad = 1;
 			catLastDied = t;
@@ -162,6 +169,9 @@ void killCatIfDying(int t) {
 		}
 		catShot = 0;
 	}
+	else {
+		catShouldBeBlinking = 1;
+	}
 }
 
 int catRecentlyDied() {
@@ -169,6 +179,7 @@ int catRecentlyDied() {
 		catLavad = 0;
 		catMurdered = 0;
 		catLives--;
+		mmEffect(SFX_MEOW);
 		if(catLives == -1) {
 			return 1;
 		}

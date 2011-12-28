@@ -1,4 +1,11 @@
 #define MOD_SVATGGAME	0
+#define SFX_LASER	14
+#define SFX_MEOW	15
+#define SFX_POWERUP	16
+#define SFX_SLAUGHTER1	17
+#define SFX_SLAUGHTER2	18
+#define SFX_SLAUGHTER3	19
+#define SFX_SLAUGHTER4	20
 #define MSL_NSONGS	1
-#define MSL_NSAMPS	14
-#define MSL_BANKSIZE	15
+#define MSL_NSAMPS	21
+#define MSL_BANKSIZE	22
