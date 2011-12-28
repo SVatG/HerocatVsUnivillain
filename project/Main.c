@@ -12,6 +12,8 @@
 // NitroFS access
 #include "nitrofs.h"
 
+#define WAIT_CR ARM9_REG16(0x04000204)
+
 // Effects!
 #include "lowerscreen_display.h"
 
@@ -215,6 +217,7 @@ int main()
 	mmStart( MOD_SVATGGAME, MM_PLAY_ONCE );
 	
 	POWCNT1 = POWCNT1_ALL;
+	WAIT_CR &= ~0x80; //SRAM
 
 	initGame();
 	resetGame();

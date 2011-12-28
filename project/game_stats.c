@@ -77,7 +77,15 @@ static void memcpy8(char* dest, char const* src, int size) {
 }
 
 void loadHighscore() {
-	memcpy8((char*)&highscore, SRAM, 4);
+	uint32_t already_run;
+	memcpy8((char*)&already_run, SRAM+4, 4);
+	if (already_run == 0xdeadbeef) {
+	  memcpy8((char*)&highscore, SRAM, 4);
+	} else {
+	  already_run = 0xdeadbeef;
+	  memcpy8(SRAM+4, (char*)&already_run, 4);
+	  highscore = 1337;
+	}
 }
 
 void initGame() {
@@ -88,6 +96,7 @@ void initGame() {
 	initStuffSprites();
 	lowerscreen_init();
 	loadHighscore();
+	score = 0;
 }
 
 void resetGame() {
