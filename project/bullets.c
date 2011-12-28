@@ -100,7 +100,7 @@ void resetUnicorns() {
 void resetEvilUnicorns() {
 	nextEvilUnicorn = 0;
 	
-	for( int i = 0; i < 3; i++ ) {
+	for( int i = 0; i < 4; i++ ) {
 		evilUnicorns[i].active = 0;
 		evilUnicorns[i].x = 257;
 		evilUnicorns[i].spc = 0;
@@ -192,6 +192,7 @@ int updateBullets() {
 							evilUnicorns[3].life--;
 							if(evilUnicorns[3].life == 0) {
 								gameFinished = 1;
+								evilUnicorns[3].active = 0;
 							}
 							bullets[i].active = 0;
 							bullets[i].x = 257*256;
