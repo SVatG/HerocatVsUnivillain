@@ -1,4 +1,6 @@
 #include "game_stats.h"
+#include <maxmod9.h>
+#include "music.h"
 
 uint16_t* bulletSpritesA[10];
 uint16_t* bulletSpritesB[10];
@@ -145,6 +147,7 @@ int updateBullets() {
 			int dist = distToCat(bullets[i].x/256,bullets[i].y/256-192);
 			if( dist <= 9  && bullets[i].alleg == 2) {
 				catBullets++;
+				mmEffect(SFX_POWERUP);
 				bullets[i].active = 0;
 				bullets[i].x = 257*256;
 				scoreAdd(10);
@@ -169,6 +172,7 @@ int updateBullets() {
 							evilUnicorns[u].dead = 1;
 							evilUnicorns[u].dy = -3000;
 							evilUnicorns[u].dx = 0;
+							mmEffect(SFX_SLAUGHTER1);
 						}
 					}
 				}

@@ -208,6 +208,8 @@ int main()
 		menu_init();
 		int menuRunning = 1;
 		while(menuRunning == 1) {
+			oamClear(&oamMain,0,0);
+			oamClear(&oamSub,0,0);
 			menu_update(t++);
 			scanKeys();
 			int keys = keysDown();
@@ -228,7 +230,8 @@ int main()
 		int gameRunning = 1;
 		while(gameRunning == 1) {
 			consoleClear();
-
+			gotoxy(1,4);
+			iprintf("t = %d\n", t);
 			if( mode != 0 ) {
 				t++;
 				spc++;
@@ -243,6 +246,8 @@ int main()
 				oamClear(&oamSub,0,0);
 				if( catRecentlyDied() == 1 ) {
 					gameRunning = 0;
+					oamClear(&oamMain,0,0);
+					oamClear(&oamSub,0,0);
 				}
 			}
 			else {

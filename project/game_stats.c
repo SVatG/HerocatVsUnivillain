@@ -81,7 +81,7 @@ void resetGame() {
 	yp = 0;
 	catShot = 0;
 	catLavad = 0;
-	catBullets = 20;
+	catBullets = 5;
 	KittenReset(&Cat);
 	resetBullets();
 	resetUnicorns();
