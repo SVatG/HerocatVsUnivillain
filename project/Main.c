@@ -28,6 +28,7 @@ static void vblank();
 extern int tempImage;
 extern int noise[41][41];
 extern int yp;
+extern int stopfloor;
 
 uint8_t ATTR_DTCM dtcm_buffer[12288];
 
@@ -67,8 +68,6 @@ int main()
 	nitroFSInitAdv( BINARY_NAME );
 	tempImage = malloc(256*256*2);
 
-	t = 0;
-
 	uint8_t *wram=(uint8_t *)0x3000000;
 //	memset(wram,0,128*96);
 
@@ -78,37 +77,95 @@ int main()
 
 	POWCNT1 = POWCNT1_ALL;
 
+	initGame();
 	resetGame();
 
-	int spc = 0;
-	while(1) {
-		t++;
-		spc++;
-		if(spc >= 50) {
-			spc = 0;
-			unicornRight();
-			spawnEvilUnicorn(-64,10,1200,500,20);
-		}
 
-		int keys = keysHeld();
-		if(keys & KEY_A) {
-			catShoot(t);
+	while(1) {
+		menu_init();
+		int menuRunning = 1;
+		while(menuRunning == 1) {
+			menu_update(t++);
+			scanKeys();
+			int keys = keysHeld();
+			if(keys & KEY_A) {
+				menuRunning = 0;
+				resetGame();
+				t = 0;
+				scanKeys();
+			}
+			swiWaitForVBlank();
+			
 		}
-		consoleClear();
-		scoreAdd(2);
-		printOSD();
-		lowerscreen_update(t);
-		updateBullets();
-		updateAllUnicorns(t);
-		KittenUpdate(&Cat);
- 		swiWaitForVBlank();
+		int spc = 0;
+		int espc = 0;
+		int unifreq = 200;
+		int unilast = 0; // 0 -> left, 1 -> right;
+		int mode = 0;
+		int gameRunning = 1;
+		while(gameRunning == 1) {
+
+			if( mode != 0 ) {
+				t++;
+				spc++;
+				espc++;
+				stopfloor = 0;
+				updateBullets();
+				updateAllUnicorns(t);
+				KittenUpdate(&Cat);
+			}
+			else {
+				stopfloor = 1;
+			}
+
+			if(spc >= 100) {
+				spc = 0;
+				if(unilast == 0) {
+					unicornRight();
+					unilast = 1;
+				}
+				else {
+					unicornLeft();
+					unilast = 0;
+				}
+			}
+
+			if(espc >= unifreq) {
+				if(unifreq > 60) {
+					unifreq -= 20;
+				}
+				espc = 0;
+				if(Random()%2 == 0) {
+					evilLeft();
+				}
+				else {
+					evilRight();
+				}
+			}
+
+			int keys = keysHeld();
+			if(keys & KEY_A) {
+				catShoot(t);
+			}
+			consoleClear();
+			gotoxy(3,3);
+			iprintf("t = %d\n", t);
+			scoreAdd(1);
+			printOSD();
+			if(t >= 25000) {
+				lowerscreen_update(25000);
+			}
+			else {
+				lowerscreen_update(t);
+			}
+			swiWaitForVBlank();
+		}
 	}
-	
 	for(;;);
 
 	return 0;
 }
 
-static void vblank() { t++; }
+static void vblank() { t; }
 
 

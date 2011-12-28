@@ -50,14 +50,7 @@ void KittenInit(Kitten* cat) {
 
   oamInit(&oamMain, SpriteMapping_1D_128, false);
   oamInit(&oamSub, SpriteMapping_1D_128, false);
-  
-  cat->state=STANDING;
-  cat->palette=NULL;
-  cat->x=SCREEN_WIDTH/2-16;
-  cat->y=SCREEN_HEIGHT - 64;
-  cat->frame=0;
-  cat->frametime=0;
-  
+
   cat->spriteWalking[0] = loadSpriteA32("nitro:/gfx/kitten_walk1.img.bin");
   cat->spriteWalking[1] = loadSpriteA32("nitro:/gfx/kitten_walk2.img.bin");
   cat->spriteWalking[2] = loadSpriteA32("nitro:/gfx/kitten_walk3.img.bin");
@@ -74,6 +67,14 @@ void KittenInit(Kitten* cat) {
   dmaCopy(cat->palette, SPRITE_PALETTE_SUB, 512); //copy the sprites palette  
 }
 
+void KittenReset(Kitten* cat)  {
+  cat->state=STANDING;
+  cat->palette=NULL;
+  cat->x=SCREEN_WIDTH/2-16;
+  cat->y=SCREEN_HEIGHT - 64;
+  cat->frame=0;
+  cat->frametime=0;
+}
 static int KittenAnimate(Kitten* cat) {
   if(cat->frametime++ >= FRAME_DELAY) {
     cat->frametime=0;

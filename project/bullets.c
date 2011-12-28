@@ -4,6 +4,7 @@ uint16_t* bulletSpritesA[10];
 uint16_t* bulletSpritesB[10];
 uint16_t* unicornSprite;
 uint16_t* evilUnicornSprite;
+uint16_t* deadUnicornSprite;
 
 typedef struct
 {
@@ -52,16 +53,23 @@ Bullet bullets[MAXBUL];
 NiceUnicorn niceUnicorns[5];
 EvilUnicorn evilUnicorns[3];
 
-void initBullets() {
-	nextBullet = 0;
-	
+void initStuffSprites() {
 	bulletSpritesA[0] = loadSpriteA16("nitro:/gfx/mallow.img.bin");
 	bulletSpritesA[1] = loadSpriteA16("nitro:/gfx/mallow_pink.img.bin");
 	bulletSpritesA[2] = loadSpriteA16("nitro:/gfx/unibeam.img.bin");
-	
+
 	bulletSpritesB[0] = loadSpriteB16("nitro:/gfx/mallow.img.bin");
 	bulletSpritesB[1] = loadSpriteB16("nitro:/gfx/mallow_pink.img.bin");
 	bulletSpritesB[2] = loadSpriteB16("nitro:/gfx/unibeam.img.bin");
+
+	unicornSprite = loadSpriteB64("nitro:/gfx/unicorn_marsh.img.bin");
+
+	evilUnicornSprite = loadSpriteB64("nitro:/gfx/unicorn_front.img.bin");
+	deadUnicornSprite = loadSpriteB64("nitro:/gfx/unicorn_blacked.img.bin");
+}
+
+void resetBullets() {
+	nextBullet = 0;
 	
 	for( int i = 0; i < MAXBUL; i++ ) {
 		bullets[i].active = 0;
@@ -69,10 +77,8 @@ void initBullets() {
 	}
 }
 
-void initUnicorns() {
+void resetUnicorns() {
 	nextUnicorn = 0;
-	
-	unicornSprite = loadSpriteB64("nitro:/gfx/unicorn_marsh.img.bin");
 	
 	for( int i = 0; i < 5; i++ ) {
 		niceUnicorns[i].active = 0;
@@ -81,11 +87,9 @@ void initUnicorns() {
 	}
 }
 
-void initEvilUnicorns() {
+void resetEvilUnicorns() {
 	nextEvilUnicorn = 0;
-
-	evilUnicornSprite = loadSpriteB64("nitro:/gfx/unicorn_front.img.bin");
-
+	
 	for( int i = 0; i < 3; i++ ) {
 		evilUnicorns[i].active = 0;
 		evilUnicorns[i].x = 257;
@@ -154,13 +158,11 @@ int updateBullets() {
 			if(bullets[i].alleg == 0) {
 				for( int u = 0; u < 3; u++ ) {
 					if( evilUnicorns[u].active == 1 && evilUnicorns[u].dead == 0 ) {
-						int unidist = sqrt(
-							((evilUnicorns[u].x/256+32) - (bullets[i].x/256+8))*
-							((evilUnicorns[u].x/256+32) - (bullets[i].x/256+8)) +
-							((evilUnicorns[u].y/256+32) - (bullets[i].y/256+8))*
-							((evilUnicorns[u].y/256+32) - (bullets[i].y/256+8))
-						);
-						if(unidist <= 25) {
+						int unix = abs(((evilUnicorns[u].x/256)+32) - ((bullets[i].x/256)+8));
+						int uniy = abs(((evilUnicorns[u].y/256)+32) - ((bullets[i].y/256)+8));
+						if(
+							(unix <= 5 && uniy <= 25) || (unix <= 30 && uniy <= 8)
+						) {
 							scoreAdd(200);
 							bullets[i].active = 0;
 							bullets[i].x = 257*256;
@@ -350,7 +352,7 @@ int updateAllUnicorns(int t) {
 				0, 0,
 				SpriteSize_64x64,
 				SpriteColorFormat_256Color,
-				evilUnicornSprite,
+				evilUnicorns[i].dead == 0 ? evilUnicornSprite : deadUnicornSprite,
 				-1,
 				true, false, false, false, false
 			);

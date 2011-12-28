@@ -53,15 +53,24 @@ int score;
 int catShot;
 int catBullets;
 
-void resetGame() {
+void initGame() {
 	yp = 0;
 	catShot = 0;
 	catBullets = 20;
 	KittenInit(&Cat);
-	initBullets();
-	initUnicorns();
-	initEvilUnicorns();
+	initStuffSprites();
 	lowerscreen_init();
+}
+
+void resetGame() {
+	yp = 0;
+	catShot = 0;
+	catBullets = 20;
+	KittenReset(&Cat);
+	resetBullets();
+	resetUnicorns();
+	resetEvilUnicorns();
+	lowerscreen_reset();
 }
 
 int floorLeftHeight() {
@@ -99,12 +108,20 @@ int catShoot(int t) {
 	}
 }
 
-int unicornLeft() {
+void unicornLeft() {
 	spawnUnicorn(256,-64,-1200,600);
 }
 
-int unicornRight() {
+void unicornRight() {
 	spawnUnicorn(-64,-64,1200,600);
+}
+
+void evilLeft() {
+	spawnEvilUnicorn(-64,10,200+(((int32_t)Random())%800),300+(((int32_t)Random())%100)-(((int32_t)Random())%100),20);
+}
+
+void evilRight() {
+	spawnEvilUnicorn(256,10,-(200+(((int32_t)Random())%800)),300+(((int32_t)Random())%100)-(((int32_t)Random())%100),20);
 }
 
 void printOSD() {
@@ -121,3 +138,4 @@ void printOSD() {
 void scoreAdd(int howMuch) {
 	score += howMuch;
 }
+

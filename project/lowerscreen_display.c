@@ -21,12 +21,6 @@ void lowerscreen_init() {
 	BG2X_B = 0;
 	BG2Y_B = 0;
 	
-	for( int x = -RESX/2; x <= RESX/2; x++ ) {
-		for( int y = -RESY/2; y <= RESY/2; y++ ) {
-			noise[x+RESX/2][y+RESY/2] = (noise_at((x+RESX/2)/40.0,-(y-0.1*20.0-RESY/2)/40.0,1*0.01)*5.0);
-		}
-	}
-	
 	//DISPCNT_A=DISPCNT_MODE_5|DISPCNT_3D|DISPCNT_BG0_ON|DISPCNT_BG3_ON|DISPCNT_ON|DISPCNT_OBJ_ON;
 	//DISPCNT_A=DISPCNT_MODE_0|DISPCNT_3D|DISPCNT_BG0_ON|DISPCNT_BG3_ON|DISPCNT_ON|DISPCNT_OBJ_ON;
 	
@@ -60,8 +54,23 @@ void lowerscreen_init() {
 	loadVRAMIndirect( "nitro:/gfx/starfieldb.pal.bin", PALRAM_A,256*2-1);
 }
 
+void lowerscreen_reset() {
+	load8bVRAMIndirect( "nitro:/gfx/starfielda.img.bin", VRAM_B_OFFS_0K,256*192);
+	loadVRAMIndirect( "nitro:/gfx/starfielda.pal.bin", PALRAM_B,256*2);
+
+	load8bVRAMIndirect( "nitro:/gfx/starfieldb.img.bin", VRAM_A_OFFS_32K,256*192);
+	loadVRAMIndirect( "nitro:/gfx/starfieldb.pal.bin", PALRAM_A,256*2-1);
+	
+	for( int x = -RESX/2; x <= RESX/2; x++ ) {
+		for( int y = -RESY/2; y <= RESY/2; y++ ) {
+			noise[x+RESX/2][y+RESY/2] = (noise_at((x+RESX/2)/40.0,-(y-0.1*20.0-RESY/2)/40.0,1*0.01)*5.0);
+		}
+	}
+	yp = 0;
+}
+
+int stopfloor = 0;
 void gameGfx(int t) {
-	static uint8_t ri = 0;
 	DSMatrixMode(DS_POSITION_AND_VECTOR);
 	DSLoadIdentity();
 	vec3_t lightd = vec3(10,10,0);
@@ -83,9 +92,18 @@ void gameGfx(int t) {
 
 	int movf = (t<<10)%(1<<10);
 	if( movf == 0 ) {
-		yp++;
-		for( int x = -RESX/2; x <= RESX/2; x++ ) {
-			noise[x+RESX/2][(yp)%RESY] = (noise_at((x+RESX/2)/40.0,-(-yp-0.1*20.0-RESY)/40.0,1*0.01)*5.0);
+		if(stopfloor == 0) {
+			yp++;
+			for( int x = -RESX/2; x <= RESX/2; x++ ) {
+				noise[x+RESX/2][(yp)%RESY] = (noise_at((x+RESX/2)/40.0,-(-yp-0.1*20.0-RESY)/40.0,1*0.01)*5.0);
+
+				// Kludge
+				if(t > 12400 && t < 13200) {
+					if(noise[x+RESX/2][(yp)%RESY] <= -2) {
+						noise[x+RESX/2][(yp)%RESY] = -1;
+					}
+				}
+			}
 		}
 	}
 			

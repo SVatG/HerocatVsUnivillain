@@ -29,7 +29,7 @@ BITMAPS=gfx/kitten_walk1.bin gfx/kitten_walk2.bin gfx/kitten_walk3.bin gfx/kitte
 	gfx/aocubes.bin gfx/metaballs.bin gfx/unicorn.bin gfx/clouds.bin \
 	gfx/svatg.bin gfx/bolder1.bin gfx/eis.bin gfx/kirsche.bin gfx/stars.bin \
 	gfx/mallow.bin gfx/mallow_pink.bin gfx/unicorn_marsh.bin gfx/unicorn_front.bin \
-	gfx/unibeam.bin
+	gfx/unibeam.bin gfx/unicorn_blacked.bin gfx/textboxcenter.bin gfx/textboxleft.bin 
 
 # Compiler setup
 CC = $(DEVKITARM)/bin/arm-eabi-gcc
