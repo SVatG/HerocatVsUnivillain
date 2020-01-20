@@ -1,8 +1,0 @@
-#ifndef __LOWERSCREEN_DISPLAY_H__
-#define __LOWERSCREEN_DISPLAY_H__
-
-void effect6_init();
-u8 effect6_update( u32 t );
-void effect6_destroy();
-
-#endif
